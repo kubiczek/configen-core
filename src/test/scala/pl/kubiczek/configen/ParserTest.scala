@@ -46,13 +46,26 @@ class ParserTest extends FunSuite {
       """
       foo = true
       bar = 2
-      baz = "$pl.kubiczek.configen.plugins.CurrentDateTime ddMMyyyy"
+      baz=$pl.kubiczek.configen.plugins.CurrentDateTime ddMMyyyy HH:mm
       """
     autoFile(s) { file =>
       val config = Parser(file).parse()
       assert(config[Boolean]("foo") === true)
       assert(config[Int]("bar") === 2)
       assert(config[String]("baz") === new CurrentDateTime().generate(Array("ddMMyyyy")))
+    }
+  }
+  
+  test("parse configuration with property evaluation") {
+    val s =
+      """
+      fmt = yyyyMMdd
+      baz = "$pl.kubiczek.configen.plugins.CurrentDateTime ${fmt}"
+      """
+    autoFile(s) { file =>
+      val config = Parser(file).parse()
+      assert(config[String]("fmt") === "yyyyMMdd")
+      assert(config[String]("baz") === new CurrentDateTime().generate(Array("yyyyMMdd")))
     }
   }
 }
