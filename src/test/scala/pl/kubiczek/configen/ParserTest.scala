@@ -46,7 +46,7 @@ class ParserTest extends FunSuite {
       """
       foo = true
       bar = 2
-      baz=$pl.kubiczek.configen.plugins.CurrentDateTime ddMMyyyy HH:mm
+      baz="$pl.kubiczek.configen.plugins.CurrentDateTime ddMMyyyy"
       """
     autoFile(s) { file =>
       val config = Parser(file).parse()
