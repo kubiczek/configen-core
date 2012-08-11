@@ -8,6 +8,7 @@ import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import pl.kubiczek.configen.plugins.CurrentDateTime
+import pl.kubiczek.configen.plugins.Echo
 
 @RunWith(classOf[JUnitRunner])
 class ParserTest extends FunSuite {
@@ -40,7 +41,7 @@ class ParserTest extends FunSuite {
       assert(config[String]("baz") === "hello world")
     }
   }
-  
+
   test("parse configuration file with CurrentDateTime configen's expression") {
     val s =
       """
@@ -55,17 +56,19 @@ class ParserTest extends FunSuite {
       assert(config[String]("baz") === new CurrentDateTime().generate(Array("ddMMyyyy")))
     }
   }
-  
+
   test("parse configuration with property evaluation") {
     val s =
       """
       fmt = yyyyMMdd
       baz = "$pl.kubiczek.configen.plugins.CurrentDateTime ${fmt}"
+      bar = "$pl.kubiczek.configen.plugins.Echo format ${fmt}"
       """
     autoFile(s) { file =>
       val config = Parser(file).parse()
       assert(config[String]("fmt") === "yyyyMMdd")
       assert(config[String]("baz") === new CurrentDateTime().generate(Array("yyyyMMdd")))
+      assert(config[String]("bar") === "format yyyyMMdd")
     }
   }
 }
