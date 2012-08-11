@@ -4,8 +4,12 @@ import org.streum.configrity._
 import java.io.File
 
 object Parser {
-  def apply(cfgFile: File) = {
-    new Parser(Configuration.load(cfgFile.getAbsolutePath(), FlatFormat))
+  def apply(cfgFile: File): Parser = {
+    Parser(cfgFile.getAbsolutePath())
+  }
+
+  def apply(cfgFilename: String) = {
+    new Parser(Configuration.load(cfgFilename, FlatFormat))
   }
 }
 

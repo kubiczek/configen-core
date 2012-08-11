@@ -1,15 +1,11 @@
 package pl.kubiczek.configen
+import java.io.File
 
 /**
- * @author ${user.name}
+ * @author kubiczek
  */
 object App {
-  
-  def foo(x : Array[String]) = x.foldLeft("")((a,b) => a + b)
-  
   def main(args : Array[String]) {
-    println( "Hello World!" )
-    println("concat arguments = " + foo(args))
+    Parser(args(0)).parse().save(args(1))
   }
-
 }
