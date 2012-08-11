@@ -7,6 +7,7 @@ import java.io.File
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Date
+import pl.kubiczek.configen.plugins.CurrentDateTime
 
 @RunWith(classOf[JUnitRunner])
 class ParserTest extends FunSuite {
@@ -51,7 +52,7 @@ class ParserTest extends FunSuite {
       val config = Parser(file).parse()
       assert(config[Boolean]("foo") === true)
       assert(config[Int]("bar") === 2)
-      assert(config[String]("baz") === new SimpleDateFormat("ddMMyyyy").format(new Date))
+      assert(config[String]("baz") === new CurrentDateTime().generate(Array("ddMMyyyy")))
     }
   }
 }
