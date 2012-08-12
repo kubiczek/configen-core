@@ -98,4 +98,18 @@ class ParserTest extends FunSuite {
       assert(config[String]("echo") === "today is " + config[String]("today"))
     }
   }
+
+  test("choke when evaluateing configen expression with cyclic dependencies") {
+    val s =
+      """
+      echo1 = "$pl.kubiczek.configen.plugins.Echo ${echo2}"
+      echo2 = "$pl.kubiczek.configen.plugins.Echo ${echo3}"
+      echo3 = "$pl.kubiczek.configen.plugins.Echo ${echo1}"
+      """
+    autoFile(s) { file =>
+      intercept[IllegalStateException] {
+        Parser(file).parse()
+      }
+    }
+  }
 }
