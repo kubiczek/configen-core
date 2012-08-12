@@ -27,7 +27,7 @@ class ParserTest extends FunSuite {
     }
   }
 
-  test("parse configuration file without configen's expression") {
+  test("no configen expression") {
     val s =
       """
       foo = true
@@ -42,7 +42,7 @@ class ParserTest extends FunSuite {
     }
   }
 
-  test("parse configuration file with CurrentDateTime configen's expression") {
+  test("evaluate configen expression") {
     val s =
       """
       foo = true
@@ -57,18 +57,33 @@ class ParserTest extends FunSuite {
     }
   }
 
-  test("parse configuration with property evaluation") {
+  test("evaluate configen expression with property") {
     val s =
       """
-      fmt = yyyyMMdd
-      baz = "$pl.kubiczek.configen.plugins.CurrentDateTime ${fmt}"
-      bar = "$pl.kubiczek.configen.plugins.Echo format ${fmt}"
+      format = yyyyMMdd
+      today  = "$pl.kubiczek.configen.plugins.CurrentDateTime ${format}"
+      echo   = "$pl.kubiczek.configen.plugins.Echo format is ${format}"
       """
     autoFile(s) { file =>
       val config = Parser(file).parse()
-      assert(config[String]("fmt") === "yyyyMMdd")
-      assert(config[String]("baz") === new CurrentDateTime().generate(Array("yyyyMMdd")))
-      assert(config[String]("bar") === "format yyyyMMdd")
+      assert(config[String]("format") === "yyyyMMdd")
+      assert(config[String]("today") === new CurrentDateTime().generate(Array("yyyyMMdd")))
+      assert(config[String]("echo") === "format is yyyyMMdd")
+    }
+  }
+  
+  test("evaluate nested configen expression") {
+    val s =
+      """
+      format = yyyyMMdd
+      today  = "$pl.kubiczek.configen.plugins.CurrentDateTime ${format}"
+      echo   = "$pl.kubiczek.configen.plugins.Echo today is ${today}"
+      """
+    autoFile(s) { file =>
+      val config = Parser(file).parse()
+      assert(config[String]("format") === "yyyyMMdd")
+      assert(config[String]("today") === new CurrentDateTime().generate(Array("yyyyMMdd")))
+      assert(config[String]("echo") === "today is " + config[String]("today"))
     }
   }
 }

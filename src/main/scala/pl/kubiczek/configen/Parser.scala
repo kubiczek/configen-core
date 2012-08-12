@@ -17,23 +17,29 @@ class Parser(config: Configuration) {
 
   def parse() = {
     config match {
-      case Configuration(data) => new Configuration(data.map {
-        case x @ (key, value) => if (value.startsWith("$")) (key, eval(value.substring(1))) else x
-      })
+      //      case Configuration(data) => new Configuration(data.map {
+      //        case (key, value) => (key, eval(value))
+      //      })
+      case Configuration(data) => new Configuration(
+        for ((key, value) <- data) yield (key, eval(value)))
     }
   }
 
   private def eval(expr: String) = {
-    val splited = substitute(expr.split("[\\$\\{,\\}]").toList).reduce(_ + _).split(" ")
+    if (expr.startsWith("$")) {
+      val splited = substitute(expr.substring(1).split("[\\$\\{,\\}]").toList).reduce(_ + _).split(" ")
 
-    Class.forName(splited.head)
-      .newInstance
-      .asInstanceOf[PropertyGenerator]
-      .generate(splited.tail)
+      Class.forName(splited.head)
+        .newInstance
+        .asInstanceOf[PropertyGenerator]
+        .generate(splited.tail)
+    } else {
+      expr
+    }
   }
 
   private def substitute(ls: List[String]): List[String] = ls match {
-    case x :: y :: ys => if (x == "") config[String](y) :: substitute(ys) else x :: substitute(y :: ys)
+    case x :: y :: ys => if (x == "") eval(config[String](y)) :: substitute(ys) else x :: substitute(y :: ys)
     case ys @ x :: Nil => ys
     case Nil => Nil
   }
