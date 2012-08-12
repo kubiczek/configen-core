@@ -71,7 +71,19 @@ class ParserTest extends FunSuite {
       assert(config[String]("echo") === "format is yyyyMMdd")
     }
   }
-  
+
+  test("choke when evaluating configen expression with unknown property") {
+    val s =
+      """
+      echo = "$pl.kubiczek.configen.plugins.Echo this is unknown property ${unknown.property}"
+      """
+    autoFile(s) { file =>
+      intercept[NoSuchElementException] {
+        Parser(file).parse()
+      }
+    }
+  }
+
   test("evaluate nested configen expression") {
     val s =
       """
